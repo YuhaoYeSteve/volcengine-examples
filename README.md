@@ -2,8 +2,7 @@
 
 这是一个基于火山引擎 Ark SDK 的 AI 对话演示项目。它提供了一个类似“豆包”的简洁前端界面，支持多轮对话、会话管理以及 Token 用量统计。
 
-![Preview](assets/preview.png)
-*(请将运行后的页面截图保存为 `assets/preview.png` 以在此处显示)*
+![Preview](assets/screen_shot.png)
 
 ## ✨ 功能特性
 
