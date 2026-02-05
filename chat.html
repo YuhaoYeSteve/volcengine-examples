@@ -5,6 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ark Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      margin: 0 2px;
+      background-color: #6b7280;
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+  </style>
 </head>
 <body class="h-screen w-screen bg-gray-50">
   <div class="h-full grid grid-cols-[280px_1fr]">
@@ -118,6 +140,28 @@
       renderConversationList();
       document.getElementById("conv-title").textContent = c.title;
     }
+    function showLoading() {
+      const box = document.getElementById("messages");
+      const row = document.createElement("div");
+      row.className = "flex justify-start";
+      row.id = "loading-bubble";
+      const bubble = document.createElement("div");
+      bubble.className = "max-w-2xl px-4 py-3 rounded bg-gray-200 flex items-center";
+      bubble.innerHTML = `
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      row.appendChild(bubble);
+      box.appendChild(row);
+      box.scrollTop = box.scrollHeight;
+    }
+    function removeLoading() {
+      const el = document.getElementById("loading-bubble");
+      if (el) el.remove();
+    }
     async function sendMessage() {
       const el = document.getElementById("input");
       const btn = document.getElementById("send-btn");
@@ -136,6 +180,7 @@
       renderMessages();
       el.value = "";
       setStatus("发送中...");
+      showLoading();
       try {
         const req = { 
           messages: c.messages.map(m => ({ role: m.role === "assistant" ? "assistant" : m.role, content: m.content })),
@@ -155,7 +200,6 @@
         const assistantMsg = { role: "assistant", content: "", created: Date.now() };
         c.messages.push(assistantMsg);
         saveConversations();
-        renderMessages();
 
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
@@ -188,8 +232,10 @@
             }
           }
         }
+        renderMessages();
         setStatus("完成");
       } catch (e) {
+        removeLoading();
         setStatus("错误：" + e.message);
       } finally {
         // 恢复输入和按钮
