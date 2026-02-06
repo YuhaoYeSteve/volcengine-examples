@@ -75,43 +75,78 @@
     }
   </style>
 </head>
-<body class="h-screen w-screen bg-gray-50">
-  <div class="h-full grid grid-cols-[280px_1fr]">
-    <aside class="border-r border-gray-200 bg-white flex flex-col">
-      <div class="p-4 border-b">
-        <div class="text-lg font-semibold">会话</div>
-        <button id="new-btn" class="mt-3 w-full bg-black text-white rounded px-3 py-2">新建会话</button>
+<body class="h-screen w-screen bg-white text-sm">
+  <div class="h-full flex">
+    <!-- Sidebar -->
+    <aside class="w-[260px] bg-gray-50 flex flex-col border-r border-gray-100 flex-shrink-0">
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-6 px-2">
+           <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+           <span class="font-bold text-lg text-gray-800">Ark Chat</span>
+        </div>
+        <button id="new-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 py-2.5 shadow-sm transition-colors flex items-center justify-center gap-2 font-medium">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          新建对话
+        </button>
       </div>
-      <div id="conv-list" class="flex-1 overflow-y-auto">
+      <div class="px-3 pb-2 text-xs text-gray-400 font-medium">最近对话</div>
+      <div id="conv-list" class="flex-1 overflow-y-auto px-3 space-y-1 scrollbar-hide">
+      </div>
+      <!-- User Profile / Settings Area -->
+      <div class="p-4 border-t border-gray-100">
+         <button id="settings-btn" class="flex items-center gap-3 w-full p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
+            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <span>设置</span>
+         </button>
       </div>
     </aside>
-    <main class="flex flex-col">
-      <header class="border-b border-gray-200 bg-white p-4 flex items-center justify-between">
-        <div id="conv-title" class="text-lg font-semibold">未选择会话</div>
-        <div class="space-x-2 flex items-center">
-          <button id="settings-btn" class="p-2 text-gray-500 hover:bg-gray-100 rounded" title="设置">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col h-full relative bg-white">
+      <!-- Header (Hidden or Minimal) -->
+      <header class="h-14 flex items-center justify-between px-6 border-b border-gray-50">
+        <div id="conv-title" class="font-medium text-gray-700 truncate max-w-md">未选择会话</div>
+        <div class="flex items-center gap-1">
+          <button id="rename-btn" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="重命名">
+             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           </button>
-          <div class="h-6 w-px bg-gray-300 mx-2"></div>
-          <button id="rename-btn" class="rounded px-3 py-2 border">重命名</button>
-          <button id="delete-btn" class="rounded px-3 py-2 border">删除</button>
+          <button id="delete-btn" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition" title="删除">
+             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
         </div>
       </header>
-      <section id="messages" class="flex-1 overflow-y-auto p-6 space-y-4"></section>
-      <footer class="border-t border-gray-200 bg-white p-4">
-        <!-- Image Preview Area -->
-        <div id="image-preview" class="flex gap-2 mb-2 overflow-x-auto empty:hidden"></div>
-        
-        <div class="flex space-x-3 items-end relative">
-          <button id="upload-btn" class="p-2 text-gray-500 hover:text-black transition" title="上传图片">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </button>
-          <input type="file" id="file-input" accept="image/*" multiple class="hidden">
-          
-          <textarea id="input" class="flex-1 resize-none overflow-hidden min-h-[44px] max-h-48 rounded border p-3" rows="1" placeholder="输入消息，Enter 发送，Shift+Enter 换行，支持粘贴图片"></textarea>
-          <button id="send-btn" class="w-24 h-[44px] bg-black text-white rounded px-3 py-2">发送</button>
+
+      <!-- Messages Container -->
+      <section id="messages" class="flex-1 overflow-y-auto px-4 py-6 space-y-6 scroll-smooth"></section>
+
+      <!-- Input Area -->
+      <footer class="p-6 pb-8">
+        <div class="max-w-3xl mx-auto relative">
+           <!-- Image Preview -->
+           <div id="image-preview" class="absolute bottom-full left-0 mb-2 flex gap-2 overflow-x-auto p-1 empty:hidden"></div>
+
+           <div class="bg-white border border-gray-200 rounded-3xl shadow-sm hover:shadow-md transition-shadow focus-within:shadow-md focus-within:border-blue-400 flex flex-col overflow-hidden relative">
+              <textarea id="input" class="w-full resize-none max-h-48 min-h-[56px] py-4 pl-4 pr-12 outline-none text-gray-700 placeholder-gray-400 bg-transparent" rows="1" placeholder="发送消息给 Ark Chat..."></textarea>
+              
+              <!-- Bottom Actions Bar -->
+              <div class="flex items-center justify-between px-3 pb-3 pt-1">
+                 <div class="flex items-center gap-1">
+                    <button id="upload-btn" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition" title="上传图片">
+                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </button>
+                    <input type="file" id="file-input" accept="image/*" multiple class="hidden">
+                 </div>
+                 
+                 <button id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                 </button>
+              </div>
+           </div>
+           <div class="text-center mt-2 text-xs text-gray-400">内容由 AI 生成，请仔细甄别</div>
+           <div id="status" class="absolute -bottom-6 left-0 text-xs text-gray-400 hidden"></div>
         </div>
-        <div id="status" class="mt-2 text-sm text-gray-500"></div>
       </footer>
     </main>
   </div>
@@ -194,8 +229,8 @@
       list.innerHTML = "";
       conversations.forEach(c => {
         const item = document.createElement("button");
-        item.className = "w-full text-left px-4 py-3 border-b hover:bg-gray-50";
-        if (c.id === currentId) item.className += " bg-gray-100";
+        item.className = "w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors truncate mb-1";
+        if (c.id === currentId) item.className = "w-full text-left px-3 py-2 rounded-lg text-sm bg-white shadow-sm text-blue-600 font-medium mb-1";
         item.textContent = c.title;
         item.onclick = () => selectConversation(c.id);
         list.appendChild(item);
@@ -215,13 +250,13 @@
       if (!c) return;
       c.messages.forEach(m => {
         const row = document.createElement("div");
-        row.className = "flex";
+        row.className = "flex w-full max-w-3xl mx-auto mb-6";
         const bubble = document.createElement("div");
-        bubble.className = "max-w-2xl px-4 py-3 rounded overflow-hidden";
+        bubble.className = "px-4 py-3 rounded-2xl overflow-hidden max-w-[85%]";
         
         // 创建 Markdown 容器
         const markdownDiv = document.createElement("div");
-        markdownDiv.className = "markdown-body";
+        markdownDiv.className = "markdown-body text-sm leading-relaxed";
 
         let contentHtml = "";
         
@@ -231,7 +266,7 @@
             if (part.type === "text") {
               contentHtml += marked.parse(part.text);
             } else if (part.type === "image_url") {
-              contentHtml += `<img src="${part.image_url.url}" class="max-w-full rounded mb-2" />`;
+              contentHtml += `<img src="${part.image_url.url}" class="max-w-full rounded-lg mb-2" />`;
             }
           });
         } else {
@@ -260,11 +295,15 @@
         });
 
         if (m.role === "user") {
-          row.className += " justify-end user-bubble";
-          bubble.className += " bg-black";
+          row.className += " justify-end";
+          bubble.className += " bg-blue-600 text-white rounded-br-sm";
+          // Override markdown styles for user bubble
+          markdownDiv.style.color = 'white';
         } else {
-          row.className += " justify-start bot-bubble";
-          bubble.className += " bg-gray-200";
+          row.className += " justify-start";
+          bubble.className += " bg-gray-50 text-gray-800 rounded-bl-sm";
+           // Override markdown styles for bot bubble
+           markdownDiv.style.color = '#1f2937';
         }
         box.appendChild(row);
         row.appendChild(bubble);
@@ -299,10 +338,10 @@
     function showLoading() {
       const box = document.getElementById("messages");
       const row = document.createElement("div");
-      row.className = "flex justify-start";
+      row.className = "flex w-full max-w-3xl mx-auto mb-6 justify-start";
       row.id = "loading-bubble";
       const bubble = document.createElement("div");
-      bubble.className = "max-w-2xl px-4 py-3 rounded bg-gray-200 flex items-center";
+      bubble.className = "px-4 py-3 rounded-2xl bg-gray-50 flex items-center rounded-bl-sm";
       bubble.innerHTML = `
         <div class="typing-indicator">
           <div class="typing-dot"></div>
