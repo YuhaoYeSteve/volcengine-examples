@@ -219,6 +219,10 @@
         const bubble = document.createElement("div");
         bubble.className = "max-w-2xl px-4 py-3 rounded overflow-hidden";
         
+        // 创建 Markdown 容器
+        const markdownDiv = document.createElement("div");
+        markdownDiv.className = "markdown-body";
+
         let contentHtml = "";
         
         // Handle multi-modal content (array) or legacy string
@@ -234,14 +238,14 @@
           contentHtml = marked.parse(m.content || "");
         }
 
-        bubble.innerHTML = contentHtml;
-        bubble.className += " markdown-body";
+        markdownDiv.innerHTML = contentHtml;
+        bubble.appendChild(markdownDiv);
 
         // Highlight code blocks and add copy buttons
-        bubble.querySelectorAll('pre code').forEach((block) => {
+        markdownDiv.querySelectorAll('pre code').forEach((block) => {
            hljs.highlightElement(block);
         });
-        bubble.querySelectorAll('pre').forEach((pre) => {
+        markdownDiv.querySelectorAll('pre').forEach((pre) => {
           if (pre.querySelector('.copy-btn')) return;
           const btn = document.createElement('button');
           btn.className = 'copy-btn';
