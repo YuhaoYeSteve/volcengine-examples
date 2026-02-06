@@ -5,7 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ark Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Markdown & Highlight Support -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 98%;
+      margin: 0 auto;
+      padding: 0;
+      background-color: transparent !important;
+      font-size: 15px;
+    }
+    .markdown-body pre {
+      position: relative;
+      background-color: #161b22 !important;
+      border-radius: 6px;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      color: #c9d1d9;
+      padding: 2px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    /* Override GitHub markdown styles for dark/light bubbles */
+    .user-bubble .markdown-body {
+      color: white;
+    }
+    .user-bubble .markdown-body code {
+      background-color: rgba(255,255,255,0.2);
+    }
+    .bot-bubble .markdown-body {
+      color: #24292f;
+    }
+    
     .typing-indicator {
       display: flex;
       align-items: center;
@@ -41,25 +88,94 @@
     <main class="flex flex-col">
       <header class="border-b border-gray-200 bg-white p-4 flex items-center justify-between">
         <div id="conv-title" class="text-lg font-semibold">未选择会话</div>
-        <div class="space-x-2">
+        <div class="space-x-2 flex items-center">
+          <button id="settings-btn" class="p-2 text-gray-500 hover:bg-gray-100 rounded" title="设置">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <div class="h-6 w-px bg-gray-300 mx-2"></div>
           <button id="rename-btn" class="rounded px-3 py-2 border">重命名</button>
           <button id="delete-btn" class="rounded px-3 py-2 border">删除</button>
         </div>
       </header>
       <section id="messages" class="flex-1 overflow-y-auto p-6 space-y-4"></section>
       <footer class="border-t border-gray-200 bg-white p-4">
-        <div class="flex space-x-3">
-          <textarea id="input" class="flex-1 resize-none h-24 rounded border p-3" placeholder="输入消息，Enter 发送，Shift+Enter 换行"></textarea>
-          <button id="send-btn" class="w-24 bg-black text-white rounded px-3 py-2">发送</button>
+        <!-- Image Preview Area -->
+        <div id="image-preview" class="flex gap-2 mb-2 overflow-x-auto empty:hidden"></div>
+        
+        <div class="flex space-x-3 items-end relative">
+          <button id="upload-btn" class="p-2 text-gray-500 hover:text-black transition" title="上传图片">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <input type="file" id="file-input" accept="image/*" multiple class="hidden">
+          
+          <textarea id="input" class="flex-1 resize-none overflow-hidden min-h-[44px] max-h-48 rounded border p-3" rows="1" placeholder="输入消息，Enter 发送，Shift+Enter 换行，支持粘贴图片"></textarea>
+          <button id="send-btn" class="w-24 h-[44px] bg-black text-white rounded px-3 py-2">发送</button>
         </div>
         <div id="status" class="mt-2 text-sm text-gray-500"></div>
       </footer>
     </main>
   </div>
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">设置</h2>
+        <button onclick="toggleSettings(false)" class="text-gray-500 hover:text-black">×</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">System Prompt (人设)</label>
+          <textarea id="setting-system-prompt" class="w-full border rounded p-2 h-24 resize-none" placeholder="例如：你是一个资深的 Python 工程师..."></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Model Endpoint ID</label>
+          <input type="text" id="setting-model-id" class="w-full border rounded p-2" placeholder="doubao-seed-1-8-251228">
+          <p class="text-xs text-gray-500 mt-1">留空则使用后端默认配置</p>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end space-x-3">
+        <button onclick="toggleSettings(false)" class="px-4 py-2 border rounded text-gray-600">取消</button>
+        <button onclick="saveSettings()" class="px-4 py-2 bg-black text-white rounded">保存</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const LS_KEY = "ark_chat_conversations";
+    const LS_SETTINGS_KEY = "ark_chat_settings";
     let conversations = [];
     let currentId = null;
+    let pendingImages = []; // Store base64 images
+    let settings = { systemPrompt: "", modelId: "" };
+
+    function loadSettings() {
+      try {
+        settings = JSON.parse(localStorage.getItem(LS_SETTINGS_KEY) || '{"systemPrompt": "", "modelId": ""}');
+      } catch {
+        settings = { systemPrompt: "", modelId: "" };
+      }
+    }
+    
+    function toggleSettings(show) {
+      const modal = document.getElementById("settings-modal");
+      if (show) {
+        document.getElementById("setting-system-prompt").value = settings.systemPrompt || "";
+        document.getElementById("setting-model-id").value = settings.modelId || "";
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      } else {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    function saveSettings() {
+      settings.systemPrompt = document.getElementById("setting-system-prompt").value.trim();
+      settings.modelId = document.getElementById("setting-model-id").value.trim();
+      localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(settings));
+      toggleSettings(false);
+    }
+
     function uid() {
       return Math.random().toString(36).slice(2) + Date.now().toString(36);
     }
@@ -101,13 +217,49 @@
         const row = document.createElement("div");
         row.className = "flex";
         const bubble = document.createElement("div");
-        bubble.className = "max-w-2xl px-4 py-3 rounded";
-        bubble.textContent = m.content;
-        if (m.role === "user") {
-          row.className += " justify-end";
-          bubble.className += " bg-black text-white";
+        bubble.className = "max-w-2xl px-4 py-3 rounded overflow-hidden";
+        
+        let contentHtml = "";
+        
+        // Handle multi-modal content (array) or legacy string
+        if (Array.isArray(m.content)) {
+          m.content.forEach(part => {
+            if (part.type === "text") {
+              contentHtml += marked.parse(part.text);
+            } else if (part.type === "image_url") {
+              contentHtml += `<img src="${part.image_url.url}" class="max-w-full rounded mb-2" />`;
+            }
+          });
         } else {
-          row.className += " justify-start";
+          contentHtml = marked.parse(m.content || "");
+        }
+
+        bubble.innerHTML = contentHtml;
+        bubble.className += " markdown-body";
+
+        // Highlight code blocks and add copy buttons
+        bubble.querySelectorAll('pre code').forEach((block) => {
+           hljs.highlightElement(block);
+        });
+        bubble.querySelectorAll('pre').forEach((pre) => {
+          if (pre.querySelector('.copy-btn')) return;
+          const btn = document.createElement('button');
+          btn.className = 'copy-btn';
+          btn.textContent = 'Copy';
+          btn.onclick = () => {
+             navigator.clipboard.writeText(pre.innerText).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+             });
+          };
+          pre.appendChild(btn);
+        });
+
+        if (m.role === "user") {
+          row.className += " justify-end user-bubble";
+          bubble.className += " bg-black";
+        } else {
+          row.className += " justify-start bot-bubble";
           bubble.className += " bg-gray-200";
         }
         box.appendChild(row);
@@ -162,29 +314,92 @@
       const el = document.getElementById("loading-bubble");
       if (el) el.remove();
     }
+
+    // Image Handling
+    function handleFiles(files) {
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          pendingImages.push(e.target.result);
+          renderPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderPreview() {
+      const container = document.getElementById("image-preview");
+      container.innerHTML = "";
+      pendingImages.forEach((src, idx) => {
+        const wrap = document.createElement("div");
+        wrap.className = "relative flex-shrink-0";
+        wrap.innerHTML = `
+          <img src="${src}" class="h-16 w-16 object-cover rounded border">
+          <button class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center text-xs"
+            onclick="removeImage(${idx})">×</button>
+        `;
+        container.appendChild(wrap);
+      });
+    }
+
+    window.removeImage = function(idx) {
+      pendingImages.splice(idx, 1);
+      renderPreview();
+    }
+
     async function sendMessage() {
       const el = document.getElementById("input");
       const btn = document.getElementById("send-btn");
       const text = el.value.trim();
-      if (!text || el.disabled) return;
+      
+      if ((!text && pendingImages.length === 0) || el.disabled) return;
       
       // 禁用输入和按钮
       el.disabled = true;
       btn.disabled = true;
       btn.classList.add("opacity-50", "cursor-not-allowed");
+      document.getElementById("upload-btn").disabled = true;
 
       if (!currentId) createConversation();
       const c = conversations.find(x => x.id === currentId);
-      c.messages.push({ role: "user", content: text, created: Date.now() });
+
+      // Construct Message Content
+      let userContent;
+      if (pendingImages.length > 0) {
+        userContent = [];
+        if (text) userContent.push({ type: "text", text: text });
+        pendingImages.forEach(img => {
+          userContent.push({ type: "image_url", image_url: { url: img } });
+        });
+      } else {
+        userContent = text;
+      }
+
+      c.messages.push({ role: "user", content: userContent, created: Date.now() });
+      
+      // Clear inputs
+      pendingImages = [];
+      renderPreview();
+      el.value = "";
+      el.style.height = 'auto'; 
+      
       saveConversations();
       renderMessages();
-      el.value = "";
+      
       setStatus("发送中...");
       showLoading();
       try {
+        // Build messages with System Prompt if set
+        let apiMessages = c.messages.map(m => ({ role: m.role === "assistant" ? "assistant" : m.role, content: m.content }));
+        if (settings.systemPrompt) {
+          apiMessages.unshift({ role: "system", content: settings.systemPrompt });
+        }
+
         const req = { 
-          messages: c.messages.map(m => ({ role: m.role === "assistant" ? "assistant" : m.role, content: m.content })),
-          stream: true
+          messages: apiMessages,
+          stream: true,
+          model: settings.modelId || undefined
         };
         const resp = await fetch("http://localhost:8000/api/chat", {
           method: "POST",
@@ -219,9 +434,16 @@
               try {
                 const data = JSON.parse(dataStr);
                 if (data.content) {
+                  // Currently backend only returns text for assistant
+                  // So we append to string or update the text part if we were to support rich response
+                  // But assistantMsg.content is initialized as string "", so we just append.
+                  // If we change assistantMsg.content to be array, we need logic here.
+                  // For now, let's keep assistant response as simple string.
                   assistantMsg.content += data.content;
                   saveConversations();
-                  renderMessages(); // 实时更新 UI
+                  // For efficient streaming update, we might want to just update the last bubble's innerHTML
+                  // But renderMessages is safe
+                  renderMessages(); 
                 }
                 if (data.usage) {
                   setStatus("tokens：" + data.usage.total_tokens);
@@ -241,6 +463,7 @@
         // 恢复输入和按钮
         el.disabled = false;
         btn.disabled = false;
+        document.getElementById("upload-btn").disabled = false;
         btn.classList.remove("opacity-50", "cursor-not-allowed");
         el.focus();
       }
@@ -252,12 +475,44 @@
     document.getElementById("delete-btn").onclick = deleteConversation;
     document.getElementById("rename-btn").onclick = renameConversation;
     document.getElementById("send-btn").onclick = sendMessage;
-    document.getElementById("input").addEventListener("keydown", (e) => {
+    const inputEl = document.getElementById("input");
+    inputEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
     });
+    // Auto-resize textarea
+    inputEl.addEventListener("input", function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+    // Paste image support
+    inputEl.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      const files = [];
+      for (let item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          files.push(item.getAsFile());
+        }
+      }
+      if (files.length > 0) {
+        handleFiles(files);
+      }
+    });
+
+    // Upload Button
+    document.getElementById("upload-btn").onclick = () => {
+      document.getElementById("file-input").click();
+    };
+    document.getElementById("file-input").onchange = (e) => {
+      handleFiles(e.target.files);
+      e.target.value = ''; // Reset to allow selecting same file again
+    };
+    
+    document.getElementById("settings-btn").onclick = () => toggleSettings(true);
+
+    loadSettings();
     loadConversations();
     renderConversationList();
     selectConversation(conversations.length ? conversations[0].id : null);

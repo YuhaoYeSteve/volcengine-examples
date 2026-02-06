@@ -3,7 +3,7 @@
 import os
 import json
 import configparser
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union, Any, Dict
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,11 +30,12 @@ app.add_middleware(
 
 class ChatMessage(BaseModel):
     role: Literal["system", "user", "assistant"]
-    content: str
+    content: Union[str, List[Dict[str, Any]]]
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     stream: Optional[bool] = False
+    model: Optional[str] = None
 
 class ChatResponse(BaseModel):
     content: str
@@ -57,18 +58,25 @@ def chat(req: ChatRequest):
             base_url="https://ark.cn-beijing.volces.com/api/v3",
             api_key=api_key,
         )
+        
+        # Use provided model or default
+        model_id = req.model if req.model else "doubao-seed-1-8-251228"
+
         messages = []
         for m in req.messages:
+            if isinstance(m.content, str):
+                content = [{"type": "text", "text": m.content}]
+            else:
+                content = m.content
+            
             messages.append({
                 "role": m.role,
-                "content": [
-                    {"type": "text", "text": m.content}
-                ]
+                "content": content
             })
 
         if req.stream:
             stream = client.chat.completions.create(
-                model="doubao-seed-1-8-251228",
+                model=model_id,
                 messages=messages,
                 stream=True
             )
@@ -87,7 +95,7 @@ def chat(req: ChatRequest):
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         resp = client.chat.completions.create(
-            model="doubao-seed-1-8-251228",
+            model=model_id,
             messages=messages
         )
         return ChatResponse(
