@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ark Chat</title>
+  <title>你的豆包</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Markdown & Highlight Support -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -11,6 +11,36 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
+    /* Glassmorphism utilities */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .glass-sidebar {
+      background: rgba(249, 250, 251, 0.85);
+      backdrop-filter: blur(12px);
+    }
+    .glass-button {
+      background: rgba(37, 99, 235, 0.9); /* blue-600 with opacity */
+      backdrop-filter: blur(4px);
+    }
+    .glass-button:hover {
+      background: rgba(37, 99, 235, 1);
+    }
+    .glass-input {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(229, 231, 235, 0.6);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    }
+    .glass-input:focus-within {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      border-color: rgba(96, 165, 250, 0.5);
+    }
+    
     .markdown-body {
       box-sizing: border-box;
       min-width: 200px;
@@ -75,27 +105,27 @@
     }
   </style>
 </head>
-<body class="h-screen w-screen bg-white text-sm">
-  <div class="h-full flex">
+<body class="h-screen w-screen bg-white text-sm bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop')] bg-cover bg-center">
+  <div class="h-full flex backdrop-blur-[20px] bg-white/30">
     <!-- Sidebar -->
-    <aside class="w-[260px] bg-gray-50 flex flex-col border-r border-gray-100 flex-shrink-0">
+    <aside class="w-[260px] glass-sidebar flex flex-col border-r border-white/40 flex-shrink-0">
       <div class="p-4">
         <div class="flex items-center gap-2 mb-6 px-2">
-           <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-           <span class="font-bold text-lg text-gray-800">Ark Chat</span>
+           <div class="w-8 h-8 bg-blue-500/90 backdrop-blur-md rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30">豆</div>
+           <span class="font-bold text-lg text-gray-800">你的豆包</span>
         </div>
-        <button id="new-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 py-2.5 shadow-sm transition-colors flex items-center justify-center gap-2 font-medium">
+        <button id="new-btn" class="w-full bg-blue-500/90 hover:bg-blue-600/90 text-white rounded-full px-4 py-2.5 shadow-lg shadow-blue-500/20 backdrop-blur-md transition-all flex items-center justify-center gap-2 font-medium">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           新建对话
         </button>
       </div>
-      <div class="px-3 pb-2 text-xs text-gray-400 font-medium">最近对话</div>
+      <div class="px-3 pb-2 text-xs text-gray-500 font-medium">最近对话</div>
       <div id="conv-list" class="flex-1 overflow-y-auto px-3 space-y-1 scrollbar-hide">
       </div>
       <!-- User Profile / Settings Area -->
-      <div class="p-4 border-t border-gray-100">
-         <button id="settings-btn" class="flex items-center gap-3 w-full p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600">
-            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+      <div class="p-4 border-t border-white/40">
+         <button id="settings-btn" class="flex items-center gap-3 w-full p-2 hover:bg-white/50 rounded-lg transition-colors text-gray-600">
+            <div class="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>
             <span>设置</span>
@@ -104,15 +134,15 @@
     </aside>
 
     <!-- Main Chat Area -->
-    <main class="flex-1 flex flex-col h-full relative bg-white">
+    <main class="flex-1 flex flex-col h-full relative bg-white/40 backdrop-blur-sm">
       <!-- Header (Hidden or Minimal) -->
-      <header class="h-14 flex items-center justify-between px-6 border-b border-gray-50">
+      <header class="h-14 flex items-center justify-between px-6 border-b border-white/40">
         <div id="conv-title" class="font-medium text-gray-700 truncate max-w-md">未选择会话</div>
         <div class="flex items-center gap-1">
-          <button id="rename-btn" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="重命名">
+          <button id="rename-btn" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-white/50 rounded-lg transition" title="重命名">
              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           </button>
-          <button id="delete-btn" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition" title="删除">
+          <button id="delete-btn" class="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50/50 rounded-lg transition" title="删除">
              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
         </div>
@@ -127,25 +157,25 @@
            <!-- Image Preview -->
            <div id="image-preview" class="absolute bottom-full left-0 mb-2 flex gap-2 overflow-x-auto p-1 empty:hidden"></div>
 
-           <div class="bg-white border border-gray-200 rounded-3xl shadow-sm hover:shadow-md transition-shadow focus-within:shadow-md focus-within:border-blue-400 flex flex-col overflow-hidden relative">
-              <textarea id="input" class="w-full resize-none max-h-48 min-h-[56px] py-4 pl-4 pr-12 outline-none text-gray-700 placeholder-gray-400 bg-transparent" rows="1" placeholder="发送消息给 Ark Chat..."></textarea>
+           <div class="glass-input rounded-3xl flex flex-col overflow-hidden relative transition-all">
+              <textarea id="input" class="w-full resize-none max-h-48 min-h-[56px] py-4 pl-4 pr-12 outline-none text-gray-700 placeholder-gray-500 bg-transparent" rows="1" placeholder="发送消息给你的豆包..."></textarea>
               
               <!-- Bottom Actions Bar -->
               <div class="flex items-center justify-between px-3 pb-3 pt-1">
                  <div class="flex items-center gap-1">
-                    <button id="upload-btn" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition" title="上传图片">
+                    <button id="upload-btn" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50/50 rounded-full transition" title="上传图片">
                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     </button>
                     <input type="file" id="file-input" accept="image/*" multiple class="hidden">
                  </div>
                  
-                 <button id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-8 h-8 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                 <button id="send-btn" class="bg-blue-500/90 hover:bg-blue-600/90 shadow-lg shadow-blue-500/30 backdrop-blur-sm text-white rounded-full w-8 h-8 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                  </button>
               </div>
            </div>
-           <div class="text-center mt-2 text-xs text-gray-400">内容由 AI 生成，请仔细甄别</div>
-           <div id="status" class="absolute -bottom-6 left-0 text-xs text-gray-400 hidden"></div>
+           <div class="text-center mt-2 text-xs text-gray-500/80 font-medium">内容由 AI 生成，请仔细甄别</div>
+           <div id="status" class="absolute -bottom-6 left-0 text-xs text-gray-500 hidden"></div>
         </div>
       </footer>
     </main>
@@ -229,8 +259,8 @@
       list.innerHTML = "";
       conversations.forEach(c => {
         const item = document.createElement("button");
-        item.className = "w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors truncate mb-1";
-        if (c.id === currentId) item.className = "w-full text-left px-3 py-2 rounded-lg text-sm bg-white shadow-sm text-blue-600 font-medium mb-1";
+        item.className = "w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-white/40 transition-colors truncate mb-1";
+        if (c.id === currentId) item.className = "w-full text-left px-3 py-2 rounded-lg text-sm bg-white/60 shadow-sm text-blue-600 font-medium mb-1 backdrop-blur-sm";
         item.textContent = c.title;
         item.onclick = () => selectConversation(c.id);
         list.appendChild(item);
@@ -296,12 +326,12 @@
 
         if (m.role === "user") {
           row.className += " justify-end";
-          bubble.className += " bg-blue-600 text-white rounded-br-sm";
+          bubble.className += " bg-blue-500/90 backdrop-blur-sm text-white rounded-br-sm shadow-md shadow-blue-500/10";
           // Override markdown styles for user bubble
           markdownDiv.style.color = 'white';
         } else {
           row.className += " justify-start";
-          bubble.className += " bg-gray-50 text-gray-800 rounded-bl-sm";
+          bubble.className += " bg-white/70 backdrop-blur-md text-gray-800 rounded-bl-sm shadow-sm border border-white/50";
            // Override markdown styles for bot bubble
            markdownDiv.style.color = '#1f2937';
         }
@@ -341,7 +371,7 @@
       row.className = "flex w-full max-w-3xl mx-auto mb-6 justify-start";
       row.id = "loading-bubble";
       const bubble = document.createElement("div");
-      bubble.className = "px-4 py-3 rounded-2xl bg-gray-50 flex items-center rounded-bl-sm";
+      bubble.className = "px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-md flex items-center rounded-bl-sm shadow-sm border border-white/50";
       bubble.innerHTML = `
         <div class="typing-indicator">
           <div class="typing-dot"></div>
